@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 2 - Form Validation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #fff0f5;
+        }
+        
+        h1 {
+            color: #e75480;
+            text-align: center;
+        }
+        
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(231, 84, 128, 0.3);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #e75480;
+            font-weight: bold;
+        }
+        
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ffb6c1;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #e75480;
+        }
+        
+        button {
+            background-color: #e75480;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #d44672;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+        }
+        
+        input.error-border {
+            border-color: #dc3545;
+        }
+        
+        input.valid-border {
+            border-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <h1>Exercise 2 - Add Student Form Validation</h1>
+
+    <div class="form-container">
+        <form id="studentForm">
+            <div class="form-group">
+                <label for="studentId">Student ID:</label>
+                <input type="text" id="studentId" name="studentId">
+                <div class="error" id="studentIdError">Student ID is required and must contain only numbers</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName">
+                <div class="error" id="lastNameError">Last Name is required and must contain only letters</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName">
+                <div class="error" id="firstNameError">First Name is required and must contain only letters</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email">
+                <div class="error" id="emailError">Please enter a valid email address (e.g., name@example.com)</div>
+            </div>
+            
+            <button type="submit">Add Student</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('studentForm');
+            const studentIdInput = document.getElementById('studentId');
+            const lastNameInput = document.getElementById('lastName');
+            const firstNameInput = document.getElementById('firstName');
+            const emailInput = document.getElementById('email');
+            
+            const studentIdError = document.getElementById('studentIdError');
+            const lastNameError = document.getElementById('lastNameError');
+            const firstNameError = document.getElementById('firstNameError');
+            const emailError = document.getElementById('emailError');
+
+            // Real-time validation
+            studentIdInput.addEventListener('input', validateStudentId);
+            lastNameInput.addEventListener('input', validateLastName);
+            firstNameInput.addEventListener('input', validateFirstName);
+            emailInput.addEventListener('input', validateEmail);
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const isStudentIdValid = validateStudentId();
+                const isLastNameValid = validateLastName();
+                const isFirstNameValid = validateFirstName();
+                const isEmailValid = validateEmail();
+                
+                if (isStudentIdValid && isLastNameValid && isFirstNameValid && isEmailValid) {
+                    alert('Form submitted successfully! All validations passed.');
+                    form.reset();
+                    resetValidationStyles();
+                } else {
+                    alert('Please fix the validation errors before submitting.');
+                }
+            });
+
+            function validateStudentId() {
+                const value = studentIdInput.value.trim();
+                
+                if (value === '') {
+                    showError(studentIdInput, studentIdError, 'Student ID is required');
+                    return false;
+                }
+                
+                if (!/^\d+$/.test(value)) {
+                    showError(studentIdInput, studentIdError, 'Student ID must contain only numbers');
+                    return false;
+                }
+                
+                showSuccess(studentIdInput, studentIdError);
+                return true;
+            }
+
+            function validateLastName() {
+                const value = lastNameInput.value.trim();
+                
+                if (value === '') {
+                    showError(lastNameInput, lastNameError, 'Last Name is required');
+                    return false;
+                }
+                
+                if (!/^[A-Za-z]+$/.test(value)) {
+                    showError(lastNameInput, lastNameError, 'Last Name must contain only letters');
+                    return false;
+                }
+                
+                showSuccess(lastNameInput, lastNameError);
+                return true;
+            }
+
+            function validateFirstName() {
+                const value = firstNameInput.value.trim();
+                
+                if (value === '') {
+                    showError(firstNameInput, firstNameError, 'First Name is required');
+                    return false;
+                }
+                
+                if (!/^[A-Za-z]+$/.test(value)) {
+                    showError(firstNameInput, firstNameError, 'First Name must contain only letters');
+                    return false;
+                }
+                
+                showSuccess(firstNameInput, firstNameError);
+                return true;
+            }
+
+            function validateEmail() {
+                const value = emailInput.value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (value === '') {
+                    showError(emailInput, emailError, 'Email is required');
+                    return false;
+                }
+                
+                if (!emailRegex.test(value)) {
+                    showError(emailInput, emailError, 'Please enter a valid email address (e.g., name@example.com)');
+                    return false;
+                }
+                
+                showSuccess(emailInput, emailError);
+                return true;
+            }
+
+            function showError(input, errorElement, message) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+                input.classList.add('error-border');
+                input.classList.remove('valid-border');
+            }
+
+            function showSuccess(input, errorElement) {
+                errorElement.classList.remove('show');
+                input.classList.remove('error-border');
+                input.classList.add('valid-border');
+            }
+
+            function resetValidationStyles() {
+                const inputs = [studentIdInput, lastNameInput, firstNameInput, emailInput];
+                const errors = [studentIdError, lastNameError, firstNameError, emailError];
+                
+                inputs.forEach(input => {
+                    input.classList.remove('error-border', 'valid-border');
+                });
+                
+                errors.forEach(error => {
+                    error.classList.remove('show');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

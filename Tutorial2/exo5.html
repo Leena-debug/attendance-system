@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 5 - jQuery Row Interactions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #fff0f5;
+        }
+        
+        h1 {
+            color: #e75480;
+            text-align: center;
+        }
+        
+        .controls {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(231, 84, 128, 0.3);
+            margin: 20px auto;
+            max-width: 800px;
+            text-align: center;
+        }
+        
+        button {
+            background-color: #e75480;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #d44672;
+            transform: translateY(-2px);
+        }
+        
+        .instructions {
+            background-color: #fffafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #ffb6c1;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #e75480;
+            margin-top: 0;
+        }
+        
+        .instructions ul {
+            color: #d44672;
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(231, 84, 128, 0.3);
+        }
+        
+        th, td {
+            border: 1px solid #ffb6c1;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        th {
+            background-color: #e75480;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        .good {
+            background-color: #f8d7da;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+        }
+        
+        .critical {
+            background-color: #f5c6cb;
+        }
+        
+        .attendance-check {
+            color: #e75480;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        /* Hover effect styles */
+        .row-hover {
+            background-color: #ffe4ec !important;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(231, 84, 128, 0.2);
+            z-index: 1;
+            position: relative;
+        }
+        
+        .row-hover td {
+            border-color: #e75480;
+            font-weight: bold;
+        }
+        
+        .row-clicked {
+            background-color: #ff69b4 !important;
+            color: white;
+        }
+        
+        .row-clicked td {
+            border-color: #ff1493;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .row-clicked .attendance-check {
+            color: white;
+        }
+        
+        .student-info {
+            background-color: #fffafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px auto;
+            max-width: 600px;
+            border: 2px solid #ffb6c1;
+            display: none;
+        }
+        
+        .student-info.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .student-info h3 {
+            color: #e75480;
+            margin-top: 0;
+            text-align: center;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .info-item {
+            background: linear-gradient(135deg, #f8d7da, #ffe4ec);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .info-label {
+            color: #d44672;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            color: #e75480;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .attendance-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status-good {
+            background-color: #f8d7da;
+            color: #28a745;
+        }
+        
+        .status-warning {
+            background-color: #fff3cd;
+            color: #ffc107;
+        }
+        
+        .status-critical {
+            background-color: #f5c6cb;
+            color: #dc3545;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .highlight-message {
+            text-align: center;
+            color: #e75480;
+            font-style: italic;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .highlight-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>Exercise 5 - jQuery Row Interactions</h1>
+
+    <!-- Controls Section -->
+    <div class="controls">
+        
+        
+        <button id="clearSelection">Clear Selection</button>
+        <button id="resetAll">Reset All Effects</button>
+    </div>
+
+    <!-- Student Info Display -->
+    <div class="student-info" id="studentInfo">
+        <h3>👨‍🎓 Student Information</h3>
+        <div class="info-grid" id="infoGrid">
+            <!-- Will be populated by jQuery -->
+        </div>
+    </div>
+
+    <div class="highlight-message" id="highlightMessage">
+        💡 Try hovering over rows or clicking to see interactions!
+    </div>
+
+    <!-- Attendance Table -->
+    <table id="attendanceTable">
+        <thead>
+            <tr>
+                <th rowspan="2">Last Name</th>
+                <th rowspan="2">First Name</th>
+                <th colspan="2">S1</th>
+                <th colspan="2">S2</th>
+                <th colspan="2">S3</th>
+                <th colspan="2">S4</th>
+                <th colspan="2">S5</th>
+                <th colspan="2">S6</th>
+                <th rowspan="2">Absences</th>
+                <th rowspan="2">Participation</th>
+                <th rowspan="2">Message</th>
+            </tr>
+            <tr>
+                <th>P</th><th>Pa</th>
+                <th>P</th><th>Pa</th>
+                <th>P</th><th>Pa</th>
+                <th>P</th><th>Pa</th>
+                <th>P</th><th>Pa</th>
+                <th>P</th><th>Pa</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="good" data-student-id="1">
+                <td>Ahmed</td>
+                <td>Sara</td>
+                <td><span class="attendance-check">✓</span></td><td><span class="attendance-check">✓</span></td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td class="absences">5</td>
+                <td class="participation">1</td>
+                <td class="message">Excluded – too many absences – You need to participate more</td>
+            </tr>
+            <tr class="good" data-student-id="2">
+                <td>Yacine</td>
+                <td>Ali</td>
+                <td><span class="attendance-check">✓</span></td><td></td>
+                <td></td><td><span class="attendance-check">✓</span></td>
+                <td><span class="attendance-check">✓</span></td><td><span class="attendance-check">✓</span></td>
+                <td><span class="attendance-check">✓</span></td><td><span class="attendance-check">✓</span></td>
+                <td><span class="attendance-check">✓</span></td><td><span class="attendance-check">✓</span></td>
+                <td></td><td></td>
+                <td class="absences">1</td>
+                <td class="participation">4</td>
+                <td class="message">Good attendance – Excellent participation</td>
+            </tr>
+            <tr class="warning" data-student-id="3">
+                <td>Houcine</td>
+                <td>Rania</td>
+                <td><span class="attendance-check">✓</span></td><td><span class="attendance-check">✓</span></td>
+                <td></td><td><span class="attendance-check">✓</span></td>
+                <td><span class="attendance-check">✓</span></td><td></td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td class="absences">4</td>
+                <td class="participation">2</td>
+                <td class="message">Warning – attendance low – You need to participate more</td>
+            </tr>
+            <tr class="good" data-student-id="4">
+                <td>Benali</td>
+                <td>Karim</td>
+                <td><span class="attendance-check">✓</span></td><td><span class="attendance-check">✓</span></td>
+                <td><span class="attendance-check">✓</span></td><td><span class="attendance-check">✓</span></td>
+                <td><span class="attendance-check">✓</span></td><td><span class="attendance-check">✓</span></td>
+                <td><span class="attendance-check">✓</span></td><td></td>
+                <td><span class="attendance-check">✓</span></td><td><span class="attendance-check">✓</span></td>
+                <td><span class="attendance-check">✓</span></td><td></td>
+                <td class="absences">0</td>
+                <td class="participation">5</td>
+                <td class="message">Good attendance – Excellent participation</td>
+            </tr>
+            <tr class="critical" data-student-id="5">
+                <td>Mansour</td>
+                <td>Leila</td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td><span class="attendance-check">✓</span></td><td></td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td class="absences">5</td>
+                <td class="participation">0</td>
+                <td class="message">Excluded – too many absences – You need to participate more</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Show initial message
+            $('#highlightMessage').addClass('show');
+            
+            setTimeout(function() {
+                $('#highlightMessage').removeClass('show');
+            }, 4000);
+
+            // Exercise 5.2 & 5.3: Row Hover Effects
+            $('#attendanceTable tbody tr').hover(
+                // Mouse enter function
+                function() {
+                    $(this).addClass('row-hover');
+                    $(this).css('cursor', 'pointer');
+                },
+                // Mouse leave function
+                function() {
+                    $(this).removeClass('row-hover');
+                }
+            );
+
+            // Exercise 5.4: Row Click - Show Student Info
+            $('#attendanceTable tbody tr').click(function() {
+                // Remove clicked class from all rows
+                $('#attendanceTable tbody tr').removeClass('row-clicked');
+                
+                // Add clicked class to current row
+                $(this).addClass('row-clicked');
+                
+                // Get student data
+                const lastName = $(this).find('td:eq(0)').text();
+                const firstName = $(this).find('td:eq(1)').text();
+                const absences = $(this).find('.absences').text();
+                const participation = $(this).find('.participation').text();
+                const message = $(this).find('.message').text();
+                const studentId = $(this).data('student-id');
+                
+                // Determine attendance status
+                let status, statusClass, statusText;
+                const absenceCount = parseInt(absences);
+                
+                if (absenceCount < 3) {
+                    status = 'Good';
+                    statusClass = 'status-good';
+                    statusText = 'Excellent Attendance';
+                } else if (absenceCount >= 3 && absenceCount <= 4) {
+                    status = 'Warning';
+                    statusClass = 'status-warning';
+                    statusText = 'Needs Improvement';
+                } else {
+                    status = 'Critical';
+                    statusClass = 'status-critical';
+                    statusText = 'Attendance Issue';
+                }
+                
+                // Calculate attendance percentage
+                const totalSessions = 6;
+                const attendancePercentage = ((totalSessions - absenceCount) / totalSessions * 100).toFixed(1);
+                
+                // Calculate participation rate
+                const participationRate = (parseInt(participation) / totalSessions * 100).toFixed(1);
+                
+                // Update student info display
+                $('#infoGrid').html(`
+                    <div class="info-item">
+                        <div class="info-label">Student ID</div>
+                        <div class="info-value">#${studentId}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value">${firstName} ${lastName}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Absences</div>
+                        <div class="info-value">${absences} / ${totalSessions}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Participations</div>
+                        <div class="info-value">${participation} / ${totalSessions}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Attendance Rate</div>
+                        <div class="info-value">${attendancePercentage}%</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Participation Rate</div>
+                        <div class="info-value">${participationRate}%</div>
+                    </div>
+                    <div class="info-item" style="grid-column: span 2;">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">
+                            ${status}
+                            <span class="attendance-status ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                    <div class="info-item" style="grid-column: span 2;">
+                        <div class="info-label">Message</div>
+                        <div class="info-value" style="font-size: 1em;">${message}</div>
+                    </div>
+                `);
+                
+                // Show student info panel
+                $('#studentInfo').addClass('show');
+            });
+
+            // Clear Selection Button
+            $('#clearSelection').click(function() {
+                $('#attendanceTable tbody tr').removeClass('row-clicked');
+                $('#studentInfo').removeClass('show');
+            });
+
+            // Reset All Effects Button
+            $('#resetAll').click(function() {
+                $('#attendanceTable tbody tr').removeClass('row-hover row-clicked');
+                $('#studentInfo').removeClass('show');
+                
+                // Show temporary message
+                $('#highlightMessage').text('All effects have been reset!').addClass('show');
+                
+                setTimeout(function() {
+                    $('#highlightMessage').removeClass('show');
+                }, 2000);
+            });
+
+            // Close student info when clicking outside
+            $(document).click(function(event) {
+                if (!$(event.target).closest('#studentInfo, #attendanceTable tbody tr').length) {
+                    $('#attendanceTable tbody tr').removeClass('row-clicked');
+                    $('#studentInfo').removeClass('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

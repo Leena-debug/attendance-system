@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 6 - Highlight Excellent Students</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #fff0f5;
+        }
+        
+        h1 {
+            color: #e75480;
+            text-align: center;
+        }
+        
+        .controls {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(231, 84, 128, 0.3);
+            margin: 20px auto;
+            max-width: 800px;
+            text-align: center;
+        }
+        
+        button {
+            background-color: #e75480;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #d44672;
+            transform: translateY(-2px);
+        }
+        
+        .instructions {
+            background-color: #fffafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #ffb6c1;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #e75480;
+            margin-top: 0;
+        }
+        
+        .instructions ul {
+            color: #d44672;
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+        }
+        
+        .status-indicator {
+            background: linear-gradient(135deg, #f8d7da, #ffe4ec);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #ffb6c1;
+            text-align: center;
+            display: none;
+        }
+        
+        .status-indicator.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .excellent-count {
+            font-size: 2em;
+            font-weight: bold;
+            color: #e75480;
+            margin: 10px 0;
+        }
+        
+        .excellent-label {
+            color: #d44672;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(231, 84, 128, 0.3);
+        }
+        
+        th, td {
+            border: 1px solid #ffb6c1;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.5s ease;
+        }
+        
+        th {
+            background-color: #e75480;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        .good {
+            background-color: #f8d7da;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+        }
+        
+        .critical {
+            background-color: #f5c6cb;
+        }
+        
+        .attendance-check {
+            color: #e75480;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .attendance-check:hover {
+            transform: scale(1.3);
+        }
+        
+        .attendance-cell {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .attendance-cell:hover {
+            background-color: #ffe4ec !important;
+        }
+        
+        .attendance-cell.present {
+            background-color: #d4edda !important;
+        }
+        
+        .attendance-cell.absent {
+            background-color: #f8d7da !important;
+        }
+        
+        .attendance-cell.participated {
+            background-color: #d1ecf1 !important;
+        }
+        
+        /* Excellent Student Highlight Styles */
+        .excellent-highlight {
+            background: linear-gradient(135deg, #ff69b4, #e75480) !important;
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(231, 84, 128, 0.4);
+            z-index: 1;
+            position: relative;
+        }
+        
+        .excellent-highlight td {
+            border-color: #ff1493;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .excellent-highlight .attendance-check {
+            color: white;
+        }
+        
+        .excellent-highlight .absences,
+        .excellent-highlight .participation {
+            color: white;
+            font-weight: bold;
+        }
+        
+        .excellent-badge {
+            display: inline-block;
+            background-color: #ffeb3b;
+            color: #e75480;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Animation Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes colorWave {
+            0% { background-color: #ff69b4; }
+            25% { background-color: #e75480; }
+            50% { background-color: #ff1493; }
+            75% { background-color: #e75480; }
+            100% { background-color: #ff69b4; }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .fade-animation {
+            animation: fadeInOut 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .color-wave-animation {
+            animation: colorWave 3s ease-in-out infinite;
+        }
+        
+        .bounce-animation {
+            animation: bounce 2s ease infinite;
+        }
+        
+        .message {
+            text-align: center;
+            color: #e75480;
+            font-style: italic;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .animation-controls {
+            background-color: #fffafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #ffb6c1;
+        }
+        
+        .animation-controls h4 {
+            color: #e75480;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .animation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .animation-btn {
+            background-color: #ff69b4;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .animation-btn:hover {
+            background-color: #e75480;
+        }
+        
+        .attendance-controls {
+            background-color: #fffafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #ffb6c1;
+        }
+        
+        .attendance-controls h4 {
+            color: #e75480;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .attendance-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .attendance-btn {
+            background-color: #e75480;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .stats-display {
+            background: linear-gradient(135deg, #f8d7da, #ffe4ec);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #ffb6c1;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .stat-item {
+            padding: 10px;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e75480;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            color: #d44672;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .click-instruction {
+            text-align: center;
+            color: #e75480;
+            font-size: 0.9em;
+            margin: 10px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Exercise 6 - Highlight Excellent Students with Attendance Checker</h1>
+
+    <!-- Controls Section -->
+    <div class="controls">
+        
+        <div class="attendance-controls">
+            <h4>📝 Attendance Controls:</h4>
+            <div class="attendance-buttons">
+                <button id="markAllPresent">Mark All Present</button>
+                <button id="markAllAbsent">Mark All Absent</button>
+                <button id="clearAttendance">Clear All Attendance</button>
+                <button id="recalculate">Recalculate Stats</button>
+            </div>
+        </div>
+        
+        <div class="animation-controls">
+            <h4>🎬 Animation Styles:</h4>
+            <div class="animation-buttons">
+                <button id="highlightExcellent">Highlight Excellent Students</button>
+                <button id="fadeAnimation">Fade Animation</button>
+                <button id="colorWave">Color Wave</button>
+                <button id="bounceAnimation">Bounce Effect</button>
+            </div>
+        </div>
+        
+        <button id="resetColors">Reset Colors</button>
+        <button id="clearAll">Clear All Effects</button>
+    </div>
+
+    <!-- Stats Display -->
+    <div class="stats-display">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value" id="totalStudents">0</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="presentCount">0</div>
+                <div class="stat-label">Present Today</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="absentCount">0</div>
+                <div class="stat-label">Absent Today</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="participationCount">0</div>
+                <div class="stat-label">Participated</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Indicator -->
+    <div class="status-indicator" id="statusIndicator">
+        <div class="excellent-label">Excellent Students Found:</div>
+        <div class="excellent-count" id="excellentCount">0</div>
+        <div>Students with fewer than 3 absences</div>
+    </div>
+
+    <div class="message" id="actionMessage">
+        Click on attendance cells to mark presence/participation!
+    </div>
+
+    <div class="click-instruction">
+        💡 Click on P cells to mark presence/absence, click on Pa cells to mark participation
+    </div>
+
+    <!-- Attendance Table -->
+    <table id="attendanceTable">
+        <thead>
+            <tr>
+                <th rowspan="2">Last Name</th>
+                <th rowspan="2">First Name</th>
+                <th colspan="2">S1</th>
+                <th colspan="2">S2</th>
+                <th colspan="2">S3</th>
+                <th colspan="2">S4</th>
+                <th colspan="2">S5</th>
+                <th colspan="2">S6</th>
+                <th rowspan="2">Absences</th>
+                <th rowspan="2">Participation</th>
+                <th rowspan="2">Status</th>
+            </tr>
+            <tr>
+                <th>P</th><th>Pa</th>
+                <th>P</th><th>Pa</th>
+                <th>P</th><th>Pa</th>
+                <th>P</th><th>Pa</th>
+                <th>P</th><th>Pa</th>
+                <th>P</th><th>Pa</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="critical" data-student-id="1">
+                <td>Ahmed</td>
+                <td>Sara</td>
+                <td class="attendance-cell presence-cell" data-session="1"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell participation-cell" data-session="1"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell presence-cell" data-session="2"></td>
+                <td class="attendance-cell participation-cell" data-session="2"></td>
+                <td class="attendance-cell presence-cell" data-session="3"></td>
+                <td class="attendance-cell participation-cell" data-session="3"></td>
+                <td class="attendance-cell presence-cell" data-session="4"></td>
+                <td class="attendance-cell participation-cell" data-session="4"></td>
+                <td class="attendance-cell presence-cell" data-session="5"></td>
+                <td class="attendance-cell participation-cell" data-session="5"></td>
+                <td class="attendance-cell presence-cell" data-session="6"></td>
+                <td class="attendance-cell participation-cell" data-session="6"></td>
+                <td class="absences">5</td>
+                <td class="participation">1</td>
+                <td class="status">Critical</td>
+            </tr>
+            <tr class="good" data-student-id="2">
+                <td>Yacine</td>
+                <td>Ali</td>
+                <td class="attendance-cell presence-cell" data-session="1"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell participation-cell" data-session="1"></td>
+                <td class="attendance-cell presence-cell" data-session="2"></td>
+                <td class="attendance-cell participation-cell" data-session="2"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell presence-cell" data-session="3"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell participation-cell" data-session="3"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell presence-cell" data-session="4"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell participation-cell" data-session="4"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell presence-cell" data-session="5"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell participation-cell" data-session="5"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell presence-cell" data-session="6"></td>
+                <td class="attendance-cell participation-cell" data-session="6"></td>
+                <td class="absences">1</td>
+                <td class="participation">4</td>
+                <td class="status">Good</td>
+            </tr>
+            <tr class="warning" data-student-id="3">
+                <td>Houcine</td>
+                <td>Rania</td>
+                <td class="attendance-cell presence-cell" data-session="1"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell participation-cell" data-session="1"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell presence-cell" data-session="2"></td>
+                <td class="attendance-cell participation-cell" data-session="2"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell presence-cell" data-session="3"><span class="attendance-check">✓</span></td>
+                <td class="attendance-cell participation-cell" data-session="3"></td>
+                <td class="attendance-cell presence-cell" data-session="4"></td>
+                <td class="attendance-cell participation-cell" data-session="4"></td>
+                <td class="attendance-cell presence-cell" data-session="5"></td>
+                <td class="attendance-cell participation-cell" data-session="5"></td>
+                <td class="attendance-cell presence-cell" data-session="6"></td>
+                <td class="attendance-cell participation-cell" data-session="6"></td>
+                <td class="absences">4</td>
+                <td class="participation">2</td>
+                <td class="status">Warning</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            let currentAnimation = '';
+            let excellentStudents = [];
+            
+            // Initialize stats
+            updateStats();
+            
+            // Show initial message
+            $('#actionMessage').addClass('show');
+            
+            setTimeout(function() {
+                $('#actionMessage').removeClass('show');
+            }, 4000);
+
+            // Attendance cell click handlers
+            $('.presence-cell').click(function() {
+                const $cell = $(this);
+                const $check = $cell.find('.attendance-check');
+                
+                if ($check.length === 0) {
+                    // Mark present
+                    $cell.html('<span class="attendance-check">✓</span>');
+                    $cell.addClass('present').removeClass('absent');
+                } else {
+                    // Mark absent
+                    $cell.html('');
+                    $cell.addClass('absent').removeClass('present');
+                }
+                
+                recalculateStudentStats($cell.closest('tr'));
+                updateStats();
+            });
+            
+            $('.participation-cell').click(function() {
+                const $cell = $(this);
+                const $check = $cell.find('.attendance-check');
+                
+                if ($check.length === 0) {
+                    // Mark participated
+                    $cell.html('<span class="attendance-check">✓</span>');
+                    $cell.addClass('participated');
+                } else {
+                    // Remove participation
+                    $cell.html('');
+                    $cell.removeClass('participated');
+                }
+                
+                recalculateStudentStats($cell.closest('tr'));
+                updateStats();
+            });
+
+            // Attendance control buttons
+            $('#markAllPresent').click(function() {
+                $('.presence-cell').html('<span class="attendance-check">✓</span>')
+                    .addClass('present').removeClass('absent');
+                recalculateAllStats();
+                updateStats();
+                showMessage('All students marked as present!');
+            });
+            
+            $('#markAllAbsent').click(function() {
+                $('.presence-cell').html('').addClass('absent').removeClass('present');
+                recalculateAllStats();
+                updateStats();
+                showMessage('All students marked as absent!');
+            });
+            
+            $('#clearAttendance').click(function() {
+                $('.attendance-cell').html('').removeClass('present absent participated');
+                recalculateAllStats();
+                updateStats();
+                showMessage('All attendance cleared!');
+            });
+            
+            $('#recalculate').click(function() {
+                recalculateAllStats();
+                updateStats();
+                showMessage('Statistics recalculated!');
+            });
+
+            // Exercise 6.1: Highlight Excellent Students
+            $('#highlightExcellent').click(function() {
+                resetAllAnimations();
+                findExcellentStudents();
+                highlightExcellentStudents('default');
+                showStatusIndicator();
+            });
+
+            // Fade Animation
+            $('#fadeAnimation').click(function() {
+                resetAllAnimations();
+                findExcellentStudents();
+                highlightExcellentStudents('fade');
+                showStatusIndicator();
+            });
+
+            // Color Wave Animation
+            $('#colorWave').click(function() {
+                resetAllAnimations();
+                findExcellentStudents();
+                highlightExcellentStudents('colorWave');
+                showStatusIndicator();
+            });
+
+            // Bounce Animation
+            $('#bounceAnimation').click(function() {
+                resetAllAnimations();
+                findExcellentStudents();
+                highlightExcellentStudents('bounce');
+                showStatusIndicator();
+            });
+
+            // Exercise 6.2: Reset Colors Button
+            $('#resetColors').click(function() {
+                resetToOriginalColors();
+                hideStatusIndicator();
+                showMessage('Colors reset to original state!');
+            });
+
+            // Clear All Effects
+            $('#clearAll').click(function() {
+                resetAllAnimations();
+                resetToOriginalColors();
+                hideStatusIndicator();
+                showMessage('All effects cleared!');
+            });
+
+            function recalculateStudentStats($studentRow) {
+                const $presenceCells = $studentRow.find('.presence-cell');
+                const $participationCells = $studentRow.find('.participation-cell');
+                
+                let absences = 0;
+                let participations = 0;
+                
+                // Count absences and participations
+                $presenceCells.each(function() {
+                    if ($(this).find('.attendance-check').length === 0) {
+                        absences++;
+                    }
+                });
+                
+                $participationCells.each(function() {
+                    if ($(this).find('.attendance-check').length > 0) {
+                        participations++;
+                    }
+                });
+                
+                // Update the student's stats
+                $studentRow.find('.absences').text(absences);
+                $studentRow.find('.participation').text(participations);
+                $studentRow.attr('data-absences', absences);
+                
+                // Update status
+                const $statusCell = $studentRow.find('.status');
+                $studentRow.removeClass('good warning critical');
+                
+                if (absences < 3) {
+                    $studentRow.addClass('good');
+                    $statusCell.text('Good');
+                } else if (absences >= 3 && absences <= 4) {
+                    $studentRow.addClass('warning');
+                    $statusCell.text('Warning');
+                } else {
+                    $studentRow.addClass('critical');
+                    $statusCell.text('Critical');
+                }
+            }
+            
+            function recalculateAllStats() {
+                $('#attendanceTable tbody tr').each(function() {
+                    recalculateStudentStats($(this));
+                });
+            }
+            
+            function updateStats() {
+                const totalStudents = $('#attendanceTable tbody tr').length;
+                let presentCount = 0;
+                let absentCount = 0;
+                let participationCount = 0;
+                
+                $('#attendanceTable tbody tr').each(function() {
+                    const $row = $(this);
+                    const session1Present = $row.find('.presence-cell[data-session="1"] .attendance-check').length > 0;
+                    
+                    if (session1Present) {
+                        presentCount++;
+                    } else {
+                        absentCount++;
+                    }
+                    
+                    const session1Participation = $row.find('.participation-cell[data-session="1"] .attendance-check').length > 0;
+                    if (session1Participation) {
+                        participationCount++;
+                    }
+                });
+                
+                $('#totalStudents').text(totalStudents);
+                $('#presentCount').text(presentCount);
+                $('#absentCount').text(absentCount);
+                $('#participationCount').text(participationCount);
+            }
+
+            function findExcellentStudents() {
+                excellentStudents = [];
+                $('#attendanceTable tbody tr').each(function() {
+                    const absences = parseInt($(this).attr('data-absences') || $(this).find('.absences').text());
+                    if (absences < 3) {
+                        excellentStudents.push($(this));
+                    }
+                });
+            }
+
+            function highlightExcellentStudents(animationType) {
+                currentAnimation = animationType;
+                
+                excellentStudents.forEach(function(student, index) {
+                    const $student = $(student);
+                    
+                    // Add excellent highlight class
+                    $student.addClass('excellent-highlight');
+                    
+                    // Add excellent badge to status cell
+                    if (!$student.find('.excellent-badge').length) {
+                        $student.find('.status').append('<span class="excellent-badge">🌟 EXCELLENT</span>');
+                    }
+                    
+                    // Apply specific animation based on type
+                    switch(animationType) {
+                        case 'fade':
+                            $student.addClass('fade-animation');
+                            break;
+                        case 'colorWave':
+                            $student.addClass('color-wave-animation');
+                            break;
+                        case 'bounce':
+                            $student.addClass('bounce-animation');
+                            break;
+                        default:
+                            // Default pulse animation for excellent badge
+                            break;
+                    }
+                    
+                    // Staggered animation delay for visual effect
+                    $student.css('animation-delay', (index * 0.2) + 's');
+                });
+                
+                // Update excellent count
+                $('#excellentCount').text(excellentStudents.length);
+                
+                // Show appropriate message
+                if (excellentStudents.length > 0) {
+                    showMessage(`🎉 Found ${excellentStudents.length} excellent students with fewer than 3 absences!`);
+                } else {
+                    showMessage('No excellent students found. All students have 3 or more absences.');
+                }
+            }
+
+            function resetToOriginalColors() {
+                $('#attendanceTable tbody tr').each(function() {
+                    const $student = $(this);
+                    const absences = parseInt($student.attr('data-absences') || $student.find('.absences').text());
+                    
+                    // Remove all animation and highlight classes
+                    $student.removeClass('excellent-highlight fade-animation color-wave-animation bounce-animation');
+                    
+                    // Remove excellent badge
+                    $student.find('.excellent-badge').remove();
+                    
+                    // Restore original class based on absences
+                    $student.removeClass('good warning critical');
+                    if (absences < 3) {
+                        $student.addClass('good');
+                    } else if (absences >= 3 && absences <= 4) {
+                        $student.addClass('warning');
+                    } else {
+                        $student.addClass('critical');
+                    }
+                });
+                
+                currentAnimation = '';
+            }
+
+            function resetAllAnimations() {
+                $('#attendanceTable tbody tr').removeClass(
+                    'fade-animation color-wave-animation bounce-animation'
+                );
+            }
+
+            function showStatusIndicator() {
+                $('#statusIndicator').addClass('show');
+            }
+
+            function hideStatusIndicator() {
+                $('#statusIndicator').removeClass('show');
+            }
+
+            function showMessage(text) {
+                $('#actionMessage').text(text).addClass('show');
+                
+                setTimeout(function() {
+                    $('#actionMessage').removeClass('show');
+                }, 3000);
+            }
+
+            // Initialize by finding excellent students
+            findExcellentStudents();
+            // Set initial data-absences attributes
+            $('#attendanceTable tbody tr').each(function() {
+                const absences = parseInt($(this).find('.absences').text());
+                $(this).attr('data-absences', absences);
+            });
+        });
+    </script>
+</body>
+</html>
