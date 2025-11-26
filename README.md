@@ -71,6 +71,3 @@ Figma Prototype following a **mobile-first approach** ( Screenshots.png)
 * Frontend: jQuery + responsive/mobile-first design
 * Backend: PHP
 * Database: MariaDB/MySQL ( I used Laragon App it contains MySQL )
-
-
-on App which use MySQL )
