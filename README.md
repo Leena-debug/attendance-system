@@ -71,3 +71,10 @@ Figma Prototype following a **mobile-first approach** ( Screenshots.png)
 * Frontend: jQuery + responsive/mobile-first design
 * Backend: PHP
 * Database: MariaDB/MySQL ( I used Laragon App it contains MySQL )
+
+* How to run the project
+
+1.Import : setup-database.php , ( you can import any file of them " professor.php,..." )
+2.Put project in Laragon www folder
+3.Start Apache + MySQL
+4.Open in a browser: localhost/attendance-system/setup-database.php  ( or any file.php)
