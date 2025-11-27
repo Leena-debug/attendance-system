@@ -32,7 +32,7 @@ Figma Prototype following a **mobile-first approach** ( Screenshots.png)
 2. Statistics Page (charts for attendance/participation)
 3. Student List Management
 
-   * Import/export student lists (Progres Excel format)
+   * Import/export student lists (Progres Excel format "in Import I used CSV format")
    * Add or remove students
 
 **3. Backend Deliverables**
